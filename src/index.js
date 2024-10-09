@@ -1,22 +1,10 @@
 // Pour executer le code : npx webpack serve ou npm run dev
-
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, getDocs, addDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
-import 'dotenv/config'
 
 console.warn("Petit test tu connais!");
 
-// const firebaseConfig = {
-//     apiKey: "AIzaSyC09F0Qwuk3yJYV9DRknyXusPXtmnTV1_8",
-//     authDomain: "b3-firebase-dc478.firebaseapp.com",
-//     projectId: "b3-firebase-dc478",
-//     storageBucket: "b3-firebase-dc478.appspot.com",
-//     messagingSenderId: "366377741179",
-//     appId: "1:366377741179:web:6d8532bacbf7fc1a36abde",
-//     measurementId: "G-4S0HXXL46W",
-//     // databaseURL: "https://b3-firebase-dc478.europe-west1.firebasedatabase.app"
-// };
-
+// Configuration Firebase
 const firebaseConfig = {
     apiKey: process.env.apiKey,
     authDomain: process.env.authDomain,
@@ -48,13 +36,13 @@ async function getFactures(db) {
     return factures;
 }
 
-const table = document.getElementById("table");
-const ligne = [];
-let cellule;
-
 // Afficher les factures sous forme de tableau
+await getFactures(db);
 function showFactures() {
-    getFactures(db);
+
+    const table = document.getElementById("table");
+    const ligne = [];
+    let cellule;
 
     console.log("Mes factures juste ici -> ", factures)
 
@@ -77,10 +65,9 @@ function showFactures() {
             cellule.innerHTML = "-";
         }
     }
-
-    console.log("Les factures viennent d'être affichées.");
 }
 
+// Ajoute une facture
 document.querySelector("#addFacture").addEventListener('submit', async (event) => {
     event.preventDefault();
 
@@ -101,25 +88,7 @@ document.querySelector("#addFacture").addEventListener('submit', async (event) =
 
         factures = [];
         await getFactures(db);
-        for (let i = 0; i < factures.length; i++) {
-            ligne[i] = table.insertRow(i);
-
-            // Numéro de la facture
-            cellule = ligne[i].insertCell(0);
-            cellule.innerHTML = factures[i].number;
-
-            // Status de la facture
-            cellule = ligne[i].insertCell(1);
-            cellule.innerHTML = factures[i].status;
-
-            // Date de la facture
-            cellule = ligne[i].insertCell(2);
-            if (factures[i].date) {
-                cellule.innerHTML = factures[i].date.toDate().toString().slice(3, 25);
-            } else {
-                cellule.innerHTML = "-";
-            }
-        }
+        showFactures();
         console.log(factures);
 
     } else {
@@ -127,11 +96,16 @@ document.querySelector("#addFacture").addEventListener('submit', async (event) =
     }
 });
 
-let taille = factures.length;
-
-// onSnapshot(collection(db, "factures"), (querySnapshot) => {
-
-//     console.log('Je test si ça fonctionne');
-// });
-
 showFactures();
+
+// Écoute s'il y a un changement en BDD
+onSnapshot(collection(db, "factures"), async (collection) => {
+
+    for (let i = 0; i < factures.length; i++) {
+        table.deleteRow(0);
+    }
+
+    factures = [];
+    await getFactures(db);
+    showFactures();
+});
