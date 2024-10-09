@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B3 Firebase</title>
+    <script defer src="bundle.js"></script>
+</head>
+
+<body>
+    <h1>Factures :</h1>
+    <form action="" id="addFacture">
+        <div>
+            <label for="number">Numéro</label>
+            <input type="text" name="number" id="number" placeholder="Entrez le numéro de la facture">
+        </div>
+        <div>
+            <label for="status">Status</label>
+            <select name="status" id="status">
+                <option value="a payer">A payer</option>
+                <option value="paye">Payé</option>
+            </select>
+        </div>
+        <div>
+            <button type="submit">Enregistrer</button>
+        </div>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Statut</th>
+                <th>Horodatage</th>
+            </tr>
+        </thead>
+        <tbody id="table">
+
+        </tbody>
+    </table>
+</body>
+
+</html>
