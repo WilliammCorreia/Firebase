@@ -1,6 +1,6 @@
 // Pour executer le code : npx webpack serve ou npm run dev
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs, addDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 
 console.warn("Petit test tu connais!");
 
@@ -64,6 +64,18 @@ function showFactures() {
         } else {
             cellule.innerHTML = "-";
         }
+
+        // Bouton supprimer;
+        cellule = ligne[i].insertCell(3);
+        cellule.innerHTML = "<button type='button' class='delete' id='"+ i +"'>Supprimer</button>";
+        cellule.addEventListener("click", function (e) {
+            
+            deleteFacture(factures[i].id);
+        });
+
+        // Bouton modifier
+        cellule = ligne[i].insertCell(4);
+        cellule.innerHTML = "<button type='button' class='modify' id='"+ i +"'>Modifier</button>";
     }
 }
 
@@ -109,3 +121,8 @@ onSnapshot(collection(db, "factures"), async (collection) => {
     await getFactures(db);
     showFactures();
 });
+
+// Supprime la facture
+async function deleteFacture(id) {
+    await deleteDoc(doc(db, "factures", id));
+}
