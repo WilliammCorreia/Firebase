@@ -1,6 +1,6 @@
 // Pour executer le code : npx webpack serve ou npm run dev
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, onSnapshot } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, updateDoc, doc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 
 console.warn("Petit test tu connais!");
 
@@ -76,6 +76,13 @@ function showFactures() {
         // Bouton modifier
         cellule = ligne[i].insertCell(4);
         cellule.innerHTML = "<button type='button' class='modify' id='"+ i +"'>Modifier</button>";
+        cellule.addEventListener("click", function (e) {
+            
+            let newNb = window.prompt('Nouveau nombre :', factures[i].number);
+            let newStatus = window.prompt('Nouveau status :', factures[i].status);
+
+            modifyFacture(factures[i].id, newNb, newStatus);
+        });
     }
 }
 
@@ -125,4 +132,13 @@ onSnapshot(collection(db, "factures"), async (collection) => {
 // Supprime la facture
 async function deleteFacture(id) {
     await deleteDoc(doc(db, "factures", id));
+}
+
+// Modifie la facture
+async function modifyFacture(id, nb, status) {
+    await updateDoc(doc(db, "factures", id), {
+        number: nb,
+        status: status,
+        date: serverTimestamp()
+      });
 }
