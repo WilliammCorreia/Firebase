@@ -41,10 +41,9 @@ await getFactures(db);
 function showFactures() {
 
     const table = document.getElementById("table");
+    table.innerHTML = "";
     const ligne = [];
     let cellule;
-
-    console.log("Mes factures juste ici -> ", factures)
 
     for (let i = 0; i < factures.length; i++) {
         ligne[i] = table.insertRow(i);
@@ -67,21 +66,70 @@ function showFactures() {
 
         // Bouton supprimer;
         cellule = ligne[i].insertCell(3);
-        cellule.innerHTML = "<button type='button' class='delete' id='"+ i +"'>Supprimer</button>";
+        cellule.innerHTML = "<button type='button' class='delete' id='" + i + "'>Supprimer</button>";
         cellule.addEventListener("click", function (e) {
-            
+
             deleteFacture(factures[i].id);
         });
 
         // Bouton modifier
         cellule = ligne[i].insertCell(4);
-        cellule.innerHTML = "<button type='button' class='modify' id='"+ i +"'>Modifier</button>";
+        cellule.innerHTML = "<button type='button' class='modify' id='" + i + "'>Modifier</button>";
         cellule.addEventListener("click", function (e) {
-            
-            let newNb = window.prompt('Nouveau nombre :', factures[i].number);
-            let newStatus = window.prompt('Nouveau status :', factures[i].status);
 
-            modifyFacture(factures[i].id, newNb, newStatus);
+            // On sauvegarde les valeurs actuelles
+            let newNb = ligne[i].cells[0].innerHTML;
+            let newStatus = ligne[i].cells[1].innerHTML;
+
+            // On transforme les champs numéro et statut en input
+            ligne[i].cells[0].innerHTML = "<input type='text' id='" + i + "' placeholder='Entrez le nouveau numéro'>";
+            ligne[i].cells[1].innerHTML = "<input type='text' id='" + (i + 1) + "' placeholder='Entrez le nouveau statut'>";
+
+            // On transforme le bouton modifier en bouton annuler
+            ligne[i].cells[4].innerHTML = "<button type='button'>Annuler</button>";
+
+            // Si l'utilisateur appuis sur annuler on ré-initialise
+            ligne[i].cells[4].addEventListener("click", event => {
+                showFactures();
+            })
+
+            // On écoute quand l'utilisateur appuie sur entrée et on modifie les champs
+            ligne[i].cells[0].addEventListener("keypress", event => {
+
+                if (event.key === 'Enter') {
+
+                    // Si l'utilisateur ne veut pas changer le statut
+                    if (document.getElementById((i + 1)).value !== '') {
+                        newStatus = document.getElementById((i + 1)).value;
+                    }
+                    else {
+                        ligne[i].cells[1].innerHTML = newStatus;
+                    }
+
+                    // Modification en BDD
+                    newNb = document.getElementById(i).value;
+                    modifyFacture(factures[i].id, newNb, newStatus);
+                }
+            });
+
+            // On écoute quand l'utilisateur appuie sur entrée et on modifie les champs
+            ligne[i].cells[1].addEventListener("keypress", event => {
+
+                if (event.key === 'Enter') {
+
+                    // Si l'utilisateur ne veut pas changer le numéro
+                    if (document.getElementById(i).value !== '') {
+                        newNb = document.getElementById(i).value;
+                    }
+                    else {
+                        ligne[i].cells[0].innerHTML = newNb;
+                    }
+
+                    // Modification en BDD
+                    newStatus = document.getElementById((i + 1)).value;
+                    modifyFacture(factures[i].id, newNb, newStatus);
+                }
+            });
         });
     }
 }
@@ -140,5 +188,5 @@ async function modifyFacture(id, nb, status) {
         number: nb,
         status: status,
         date: serverTimestamp()
-      });
+    });
 }
